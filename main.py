@@ -63,7 +63,7 @@ async def check_channels():
                 print(h.date)
                 converted = convert_datetime_timezone(str(h.date).split("+")[0],'UTC','Asia/Tehran')
                 date = datetime.datetime.strptime(converted, '%Y-%m-%d %H:%M:%S')
-                if(int(date.minute) in list(range(int(mint)-1,int(mint)+2))):
+                if((int(date.minute) in list(range(int(mint)-1,int(mint)+2))) and (int(date.day)== int(dt.day))):
                     print(f"int({date.minute}) in {list(range(int(mint)-1,int(mint)+2))}")
                     dic[f"{id}{date.day}{date.hour}{date.minute}"] = (dic.get(f"{id}{date.day}{date.hour}{date.minute}") or 0)+1
                     num = dic[f"{id}{date.day}{date.hour}{date.minute}"]
