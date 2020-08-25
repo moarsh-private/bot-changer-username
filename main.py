@@ -84,7 +84,7 @@ async def revoke_channel_link(id):
 
     while 1:
         idd = random.choice(lis)
-        idd = idd.srtip()
+        idd = idd.strip()
         if(idd.strip() == last.strip()): continue
         try:
             result = await client(functions.channels.UpdateUsernameRequest(
