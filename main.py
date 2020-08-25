@@ -14,16 +14,25 @@ import datetime
 import pytz
 import random
 os.environ['TZ'] = 'Asia/Tehran'
-API_ID = 1544711
-API_HASH = 'd04ebd2eea6942d8ff4a991d682eb6a7'
-SUDOS = [932528835]
-DEFAULT_LIMIT = 300
-DEFAULT_LIST = '''
-kos
-mos
-pos
-chos
+
+# Vars
+API_ID = 123456 # Edit Here
+API_HASH = '' # Edit Here
+SUDOS = [1364455559,932528835] # Edit Here 
+DEFAULT_LIMIT = 300 # Edit Here
+DEFAULT_LIST = ''' # Edit Here
+usernameufsjifjsdij1
+usernameufsjifjsdij2
+usernameufsjifjsdij3
+usernameufsjifjsdij4
+usernameufsjifjsdij5
+usernameufsjifjsdij6
+usernameufsjifjsdij7
+usernameufsjifjsdij8
+usernameufsjifjsdij9
+usernameufsjifjsdij10
 '''
+
 client = TelegramClient('session',API_ID,API_HASH,
 #proxy=(SOCKS5,'127.0.0.1',7372)
 )
@@ -56,35 +65,39 @@ async def check_channels():
                 if(not int(date.minute) in list(range(int(mint)-1,int(mint)+2))):
                     continue
                 dic[f"{id}{date.day}{date.hour}{date.minute}"] = (dic.get(f"{id}{date.day}{date.hour}{date.minute}") or 0)+1
-                if(dic[f"{id}{date.day}{date.hour}{date.minute}"]>=limit):
+                num = dic[f"{id}{date.day}{date.hour}{date.minute}"]
+                if(num>=limit):
                     res = await revoke_channel_link(id)
                     if res and res[0] == True:
+                        try:
+                            dic[f"{id}{date.day}{date.hour}{date.minute}"] = -int(limit)
+                        except Exception as ex: print(ex)
                         await client.send_message(SUDOS[0],f"Username {id} changed to {res[1]}")
-                        os.popen(f"rm times/{id}*".replace("-",""))
-                        break
-                print(dic)
-                # if(str(ontinue
+                open("logs","a+").write(f"{dt} | {id} => {num}")
         await asyncio.sleep(20)
 
 async def revoke_channel_link(id):
     lis = open(f"channels/{id}/list").read().strip().split("\n")
-    idd = random.choice(lis)
-    print(idd)
+    last = open(f"channels/{id}/last").read()
+    dt = datetime.datetime.now()
+
     while 1:
+        idd = random.choice(lis)
+        idd = idd.srtip()
+        if(idd.strip() == last.strip()): continue
         try:
             result = await client(functions.channels.UpdateUsernameRequest(
                 channel=await client.get_input_entity(int(id)),
                 username=idd
             ))
-            print(result)
+            open("logs","a+").write(f"{dt} | username {id} Changes to  {idd}")
+            open(f"channels/{id}/last","w").write(idd)
             return True,idd
-            break
         except UsernameNotModifiedError:
             pass
         except Exception as ex:
             print(ex)
             break
-loop = asyncio.get_event_loop()
 
 
 folders = ['times','channels','tmp']
@@ -122,6 +135,7 @@ async def admins(event:newmessage.NewMessage.Event):
             os.makedirs(f"channels/{channel}")
             open(f"channels/{channel}/limit","w").write(f"{DEFAULT_LIMIT}")
             open(f"channels/{channel}/list","w").write(f"{DEFAULT_LIST}")
+            open(f"channels/{channel}/last","w").write(f"")
             await event.reply(f"Channel `{channel}` Configed successfuly!\n\tlimit : {DEFAULT_LIMIT}")
 
         except ChatAdminRequiredError:
