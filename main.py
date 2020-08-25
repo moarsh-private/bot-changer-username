@@ -60,6 +60,7 @@ async def check_channels():
             dic = {}
             limit = int(open(f"channels/{id}/limit").read())
             async for h in client.iter_admin_log(await client.get_entity(int(id)),join=True,limit=int(limit)+10,invite=True):
+                print(h.date)
                 converted = convert_datetime_timezone(str(h.date).split("+")[0],'UTC','Asia/Tehran')
                 date = datetime.datetime.strptime(converted, '%Y-%m-%d %H:%M:%S')
                 if(int(date.minute) in list(range(int(mint)-1,int(mint)+2))):
