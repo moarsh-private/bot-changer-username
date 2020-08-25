@@ -89,7 +89,7 @@ async def revoke_channel_link(id):
     last = open(f"channels/{id}/last").read()
     lasttime = open(f"channels/{id}/lasttime").read()
     dt = datetime.datetime.now()
-    if(time.time()-60>int(lasttime)):
+    if(int(lasttime)+60 > time.time()):
         open("logs","a+").write(f"{dt} | {id} => username dose not change time<60 \n\n")
         return False
     while 1:
