@@ -136,8 +136,8 @@ async def admins(event:newmessage.NewMessage.Event):
     elif(text.startswith("!add ")):
         channel = text.replace("!add ","")
         try:
-            if(not channel.isnumeric()):    
-                await event.reply(f"{text} is not numeric!")
+            if(not channel.strip().isnumeric()):    
+                await event.reply(f"{channel} is not numeric!")
                 return
             msg = await client.send_message(int(channel),"This Is Test For Permission")
             await msg.delete()
