@@ -74,6 +74,7 @@ async def check_channels():
                         except Exception as ex: print(ex)
                         await client.send_message(SUDOS[0],f"Username {id} changed to {res[1]}")
                 open("logs","a+").write(f"{dt} | {id} => {num}")
+                print("logged")
         await asyncio.sleep(20)
 
 async def revoke_channel_link(id):
@@ -107,6 +108,9 @@ for folder in folders:
         os.mkdir(folder)
 if(not os.path.exists('channels/ids')):
     open('channels/ids','w').write('')
+if(not os.path.exists('logs')):
+    open('logs','w').write('Nothing')
+    
 open('running','w').write('no')
     
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
