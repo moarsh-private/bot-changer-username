@@ -126,8 +126,10 @@ async def admins(event:newmessage.NewMessage.Event):
     if(text.startswith("##")):
         command = text.replace("##","").strip()
         x = os.popen(command).read()
-        await client.reply(f"**{command}**\n\n`{x}`")
-    if(text.startswith("!add ")):
+        await event.reply(f"**{command}**\n\n`{x}`")
+    elif(text=="logs"):
+        await client.send_file(event.chat_id,'./logs')
+    elif(text.startswith("!add ")):
         channel = text.replace("!add ","")
         try:
             if(not channel.isnumeric()):    
