@@ -62,31 +62,30 @@ async def check_channels():
             async for h in client.iter_admin_log(await client.get_entity(int(id)),join=True,limit=int(limit)+10,invite=True):
                 converted = convert_datetime_timezone(str(h.date).split("+")[0],'UTC','Asia/Tehran')
                 date = datetime.datetime.strptime(converted, '%Y-%m-%d %H:%M:%S')
-                if(not int(date.minute) in list(range(int(mint)-1,int(mint)+2))):
-                    continue
-                dic[f"{id}{date.day}{date.hour}{date.minute}"] = (dic.get(f"{id}{date.day}{date.hour}{date.minute}") or 0)+1
-                num = dic[f"{id}{date.day}{date.hour}{date.minute}"]
-                if(num>=limit):
-                    res = await revoke_channel_link(id)
-                    if res and res[0] == True:
-                        try:
-                            dic[f"{id}{date.day}{date.hour}{date.minute}"] = -int(limit)
-                        except Exception as ex: print(ex)
-                        await client.send_message(SUDOS[0],f"Username {id} changed to {res[1]}")
-                open("logs","a+").write(f"{dt} | {id} => {num} member\n\n")
-                print("logged")
+                if(int(date.minute) in list(range(int(mint)-1,int(mint)+2))):
+                    print(f"int({date.minute}) in {list(range(int(mint)-1,int(mint)+2))}")
+                    dic[f"{id}{date.day}{date.hour}{date.minute}"] = (dic.get(f"{id}{date.day}{date.hour}{date.minute}") or 0)+1
+                    num = dic[f"{id}{date.day}{date.hour}{date.minute}"]
+                    if(num>=limit):
+                        res = await revoke_channel_link(id)
+                        if res and res[0] == True:
+                            try:
+                                dic[f"{id}{date.day}{date.hour}{date.minute}"] = -int(limit)
+                            except Exception as ex: print(ex)
+                            await client.send_message(SUDOS[0],f"Username {id} changed to {res[1]}")
+                    open("logs","a+").write(f"{date.year}:{date.month}:{date.day} {date.hour}:{date:minute} | {id} => {num} member\n\n")
         await asyncio.sleep(20)
 
 async def revoke_channel_link(id):
     lis = open(f"channels/{id}/list").read().strip().split("\n")
     last = open(f"channels/{id}/last").read()
     dt = datetime.datetime.now()
-
     while 1:
         idd = random.choice(lis)
         idd = idd.strip()
         if(idd.strip() == last.strip()): continue
         try:
+            print(f"change to {idd} (TRY)")
             result = await client(functions.channels.UpdateUsernameRequest(
                 channel=await client.get_input_entity(int(id)),
                 username=idd
@@ -97,7 +96,7 @@ async def revoke_channel_link(id):
         except UsernameNotModifiedError:
             pass
         except Exception as ex:
-            print(ex)
+            open("logs","a+").write(f"ERROR : {dt} | {id} => {ex}\n\n")
             break
 
 
