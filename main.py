@@ -16,8 +16,8 @@ import random
 os.environ['TZ'] = 'Asia/Tehran'
 
 # Vars
-API_ID = 123456 # Edit Here
-API_HASH = '' # Edit Here
+API_ID = 1544711 # Edit Here
+API_HASH = 'd04ebd2eea6942d8ff4a991d682eb6a7' # Edit Here
 SUDOS = [1364455559,932528835] # Edit Here 
 DEFAULT_LIMIT = 300 # Edit Here
 DEFAULT_LIST = ''' # Edit Here
@@ -126,6 +126,9 @@ async def admins(event:newmessage.NewMessage.Event):
     if(text.startswith("!add ")):
         channel = text.replace("!add ","")
         try:
+            if(not channel.isnumeric()):    
+                await event.reply(f"{text} is not numeric!")
+                return
             msg = await client.send_message(int(channel),"This Is Test For Permission")
             await msg.delete()
             if str(channel) in open("channels/ids").read().strip().split("\n"):
