@@ -73,7 +73,7 @@ async def check_channels():
                             dic[f"{id}{date.day}{date.hour}{date.minute}"] = -int(limit)
                         except Exception as ex: print(ex)
                         await client.send_message(SUDOS[0],f"Username {id} changed to {res[1]}")
-                open("logs","a+").write(f"{dt} | {id} => {num}")
+                open("logs","a+").write(f"{dt} | {id} => {num}\n\n")
                 print("logged")
         await asyncio.sleep(20)
 
@@ -91,7 +91,7 @@ async def revoke_channel_link(id):
                 channel=await client.get_input_entity(int(id)),
                 username=idd
             ))
-            open("logs","a+").write(f"{dt} | username {id} Changes to  {idd}")
+            open("logs","a+").write(f"{dt} | username {id} Changes to  {idd}\n\n")
             open(f"channels/{id}/last","w").write(idd)
             return True,idd
         except UsernameNotModifiedError:
@@ -109,7 +109,7 @@ for folder in folders:
 if(not os.path.exists('channels/ids')):
     open('channels/ids','w').write('')
 if(not os.path.exists('logs')):
-    open('logs','w').write('Nothing')
+    open('logs','w').write('Nothing\n')
     
 open('running','w').write('no')
     
