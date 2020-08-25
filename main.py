@@ -13,6 +13,7 @@ import asyncio
 import datetime
 import pytz
 import random
+import time
 os.environ['TZ'] = 'Asia/Tehran'
 
 # Vars
@@ -31,6 +32,10 @@ usernameufsjifjsdij7
 usernameufsjifjsdij8
 usernameufsjifjsdij9
 usernameufsjifjsdij10
+usernameufsjifjsdij11
+usernameufsjifjsdij12
+usernameufsjifjsdij13
+usernameufsjifjsdij14
 '''
 
 client = TelegramClient('session',API_ID,API_HASH,
@@ -72,10 +77,9 @@ async def check_channels():
                         res = await revoke_channel_link(id)
                         if res and res[0] == True:
                             try:
-                                dic[f"{id}{date.day}{date.hour}{date.minute}"] = -int(limit)
                                 del dic[f"{id}{date.day}{date.hour}{date.minute-1}"]
                             except Exception as ex: print(ex)
-                            await client.send_message(SUDOS[0],f"Username {id} changed to {res[1]}")
+                            await client.send_message(SUDOS[0],f"Username {id} changed to @{res[1]}")
                             
                     open("logs","a+").write(f"[{date.year}:{date.month}:{date.day} {date.time()}] | {id} => {num} member\n\n\n\n")
         await asyncio.sleep(20)
@@ -83,7 +87,11 @@ async def check_channels():
 async def revoke_channel_link(id):
     lis = open(f"channels/{id}/list").read().strip().split("\n")
     last = open(f"channels/{id}/last").read()
+    lasttime = open(f"channels/{id}/lasttime").read()
     dt = datetime.datetime.now()
+    if(time.time()-60>int(lasttime)):
+        open("logs","a+").write(f"{dt} | {id} => username dose not change time<60 \n\n")
+        return False
     while 1:
         idd = random.choice(lis)
         idd = idd.strip()
@@ -96,10 +104,12 @@ async def revoke_channel_link(id):
             ))
             open("logs","a+").write(f"{dt} | username {id} Changes to  {idd}\n\n")
             open(f"channels/{id}/last","w").write(idd)
+            open(f"channels/{id}/lasttime","w").write(str(time.time()))
             return True,idd
         except UsernameNotModifiedError:
             pass
         except Exception as ex:
+            if 'nobody' in str(ex).lower(): continue
             open("logs","a+").write(f"ERROR : {dt} | {id} => {ex}\n\n")
             break
 
@@ -152,6 +162,7 @@ async def admins(event:newmessage.NewMessage.Event):
             open(f"channels/{channel}/limit","w").write(f"{DEFAULT_LIMIT}")
             open(f"channels/{channel}/list","w").write(f"{DEFAULT_LIST}")
             open(f"channels/{channel}/last","w").write(f"")
+            open(f"channels/{channel}/lasttime","w").write(f"0")
             await event.reply(f"Channel `{channel}` Configed successfuly!\n\tlimit : {DEFAULT_LIMIT}")
 
         except ChatAdminRequiredError:
