@@ -73,7 +73,8 @@ async def check_channels():
                                 dic[f"{id}{date.day}{date.hour}{date.minute}"] = -int(limit)
                             except Exception as ex: print(ex)
                             await client.send_message(SUDOS[0],f"Username {id} changed to {res[1]}")
-                    open("logs","a+").write(f"{date.year}:{date.month}:{date.day} {date.hour}:{date:minute} | {id} => {num} member\n\n")
+                            
+                    open("logs","a+").write(f"{date.year}:{date.month}:{date.day} {date.hour}:{date:minute}or{dt.minute} | {id} => {num} member\n\n")
         await asyncio.sleep(20)
 
 async def revoke_channel_link(id):
