@@ -81,7 +81,7 @@ async def check_channels():
                                 del dic[f"{id}{date.day}{date.hour}{date.minute-1}"]
                             except Exception as ex: print(ex)
                             us = '@'+res[1] if len(res[1])>4 else 'private'
-                            await client.send_message(SUDOS[0],f"Username {id} changed to private")
+                            await client.send_message(SUDOS[0],f"Username {id} changed to {us}")
                             
                     open("logs","a+").write(f"[{date.year}:{date.month}:{date.day} {date.time()}] | {id} => {num} member\n\n\n\n")
         await asyncio.sleep(20)
