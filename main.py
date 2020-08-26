@@ -94,6 +94,7 @@ async def revoke_channel_link(id):
 
     dt = datetime.datetime.now()
     if(int(float(lasttime))+30 > time.time()):
+        print("Time<30")
         open("logs","a+").write(f"{dt} | {id} => username dose not change time<30 \n\n")
         return False
     while 1:
@@ -101,19 +102,24 @@ async def revoke_channel_link(id):
         idd = idd.strip()
         if(idd.strip() == last.strip()): continue
         try:
-            if(True):#changes_number in (5,'5')
+            x = changes_number in (5,'5')
+            if(x):
                 idd = ""
+                open(f"channels/{id}/changeusername",'w').write('0')
+
             print(f"change to '{idd}' (TRY)")
             result = await client(functions.channels.UpdateUsernameRequest(
                 channel=await client.get_input_entity(int(id)),
                 username=idd
             ))
-            open("logs","a+").write(f"{dt} | username '{id}' Changes to  {idd}\n\n")
+            to = idd if len(idd)>4 else 'private'
+            open("logs","a+").write(f"{dt} | username '{id}' Changes to  {to}\n\n")
             open(f"channels/{id}/last","w").write(idd)
             open(f"channels/{id}/lasttime","w").write(str(time.time()))
             open(f"channels/{id}/changeusername","w").write(str(int(changes_number)+1))
             return True,idd
         except UsernameNotModifiedError:
+            if x: break
             pass
         except Exception as ex:
             if 'nobody' in str(ex).lower(): continue
