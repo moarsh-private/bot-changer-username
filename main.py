@@ -3,6 +3,7 @@ from telethon.events import NewMessage,newmessage
 from telethon.client import TelegramBaseClient
 from telethon.tl.patched import Message
 from telethon.errors.rpcerrorlist import ChatAdminRequiredError,UsernameNotModifiedError
+from telethon.errors import FloodWaitError
 from telethon import functions, types
 import logging
 from socks import SOCKS5
@@ -79,7 +80,8 @@ async def check_channels():
                             try:
                                 del dic[f"{id}{date.day}{date.hour}{date.minute-1}"]
                             except Exception as ex: print(ex)
-                            await client.send_message(SUDOS[0],f"Username {id} changed to @{res[1]}")
+                            us = '@'+res[1] if len(res[1])>4 else 'private'
+                            await client.send_message(SUDOS[0],f"Username {id} changed to private")
                             
                     open("logs","a+").write(f"[{date.year}:{date.month}:{date.day} {date.time()}] | {id} => {num} member\n\n\n\n")
         await asyncio.sleep(20)
@@ -88,23 +90,28 @@ async def revoke_channel_link(id):
     lis = open(f"channels/{id}/list").read().strip().split("\n")
     last = open(f"channels/{id}/last").read()
     lasttime = open(f"channels/{id}/lasttime").read()
+    changes_number = open(f"channels/{id}/changeusername").read()
+
     dt = datetime.datetime.now()
-    if(int(float(lasttime))+60 > time.time()):
-        open("logs","a+").write(f"{dt} | {id} => username dose not change time<60 \n\n")
+    if(int(float(lasttime))+30 > time.time()):
+        open("logs","a+").write(f"{dt} | {id} => username dose not change time<30 \n\n")
         return False
     while 1:
         idd = random.choice(lis)
         idd = idd.strip()
         if(idd.strip() == last.strip()): continue
         try:
-            print(f"change to {idd} (TRY)")
+            if(True):#changes_number in (5,'5')
+                idd = ""
+            print(f"change to '{idd}' (TRY)")
             result = await client(functions.channels.UpdateUsernameRequest(
                 channel=await client.get_input_entity(int(id)),
                 username=idd
             ))
-            open("logs","a+").write(f"{dt} | username {id} Changes to  {idd}\n\n")
+            open("logs","a+").write(f"{dt} | username '{id}' Changes to  {idd}\n\n")
             open(f"channels/{id}/last","w").write(idd)
             open(f"channels/{id}/lasttime","w").write(str(time.time()))
+            open(f"channels/{id}/changeusername","w").write(str(int(changes_number)+1))
             return True,idd
         except UsernameNotModifiedError:
             pass
@@ -163,6 +170,7 @@ async def admins(event:newmessage.NewMessage.Event):
             open(f"channels/{channel}/list","w").write(f"{DEFAULT_LIST}")
             open(f"channels/{channel}/last","w").write(f"")
             open(f"channels/{channel}/lasttime","w").write(f"0")
+            open(f"channels/{channel}/changeusername","w").write(f"0")
             await event.reply(f"Channel `{channel}` Configed successfuly!\n\tlimit : {DEFAULT_LIMIT}")
 
         except ChatAdminRequiredError:
