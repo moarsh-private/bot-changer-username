@@ -75,7 +75,7 @@ async def check_channels():
                     num = dic[f"{id}{date.day}{date.hour}{date.minute}"]
                     print(f"{num}>={limit}")
                     if(num>=limit):
-                        res = await revoke_channel_link(id)
+                        res = await revoke_channel_link(id,int(date.minute) )
                         if res and res[0] == True:
                             try:
                                 del dic[f"{id}{date.day}{date.hour}{date.minute-1}"]
@@ -86,40 +86,35 @@ async def check_channels():
                     open("logs","a+").write(f"[{date.year}:{date.month}:{date.day} {date.time()}] | {id} => {num} member\n\n\n\n")
         await asyncio.sleep(20)
 
-async def revoke_channel_link(id):
+async def revoke_channel_link(id,min):
     lis = open(f"channels/{id}/list").read().strip().split("\n")
     last = open(f"channels/{id}/last").read()
     lasttime = open(f"channels/{id}/lasttime").read()
-    changes_number = open(f"channels/{id}/changeusername").read()
 
     dt = datetime.datetime.now()
-    if(int(float(lasttime))+30 > time.time()):
-        print("Time<30")
-        open("logs","a+").write(f"{dt} | {id} => username dose not change time<30 \n\n")
+    if(int(min) == int(lasttime)):
+        open("logs","a+").write(f"{dt} | {id} => username dose not change  \n\n")
         return False
     while 1:
         idd = random.choice(lis)
         idd = idd.strip()
         if(idd.strip() == last.strip()): continue
         try:
-            x = changes_number in (5,'5')
-            if(x):
-                idd = ""
-                open(f"channels/{id}/changeusername",'w').write('0')
-
-            print(f"change to '{idd}' (TRY)")
-            result = await client(functions.channels.UpdateUsernameRequest(
+            await client(functions.channels.UpdateUsernameRequest(
+                channel=await client.get_input_entity(int(id)),
+                username=''
+            ))
+            open("logs","a+").write(f"{dt} | username '{id}' Changes to private \n\n")
+            await asyncio.sleep(5)
+            await client(functions.channels.UpdateUsernameRequest(
                 channel=await client.get_input_entity(int(id)),
                 username=idd
             ))
-            to = idd if len(idd)>4 else 'private'
-            open("logs","a+").write(f"{dt} | username '{id}' Changes to  {to}\n\n")
+            open("logs","a+").write(f"{dt} | username '{id}' Changes to  {idd} \n\n")
             open(f"channels/{id}/last","w").write(idd)
             open(f"channels/{id}/lasttime","w").write(str(time.time()))
-            open(f"channels/{id}/changeusername","w").write(str(int(changes_number)+1))
             return True,idd
         except UsernameNotModifiedError:
-            if x: break
             pass
         except Exception as ex:
             if 'nobody' in str(ex).lower(): continue
@@ -176,7 +171,6 @@ async def admins(event:newmessage.NewMessage.Event):
             open(f"channels/{channel}/list","w").write(f"{DEFAULT_LIST}")
             open(f"channels/{channel}/last","w").write(f"")
             open(f"channels/{channel}/lasttime","w").write(f"0")
-            open(f"channels/{channel}/changeusername","w").write(f"0")
             await event.reply(f"Channel `{channel}` Configed successfuly!\n\tlimit : {DEFAULT_LIMIT}")
 
         except ChatAdminRequiredError:
