@@ -112,7 +112,7 @@ async def revoke_channel_link(id,min):
             ))
             open("logs","a+").write(f"{dt} | username '{id}' Changes to  {idd} \n\n")
             open(f"channels/{id}/last","w").write(idd)
-            open(f"channels/{id}/lasttime","w").write(str(time.time()))
+            open(f"channels/{id}/lasttime","w").write(str(min))
             return True,idd
         except UsernameNotModifiedError:
             pass
